@@ -219,3 +219,6 @@ __marimo__/
 
 # Raw data (PDFs, downloaded sessions)
 data/
+
+# Embedding cache
+.cache/

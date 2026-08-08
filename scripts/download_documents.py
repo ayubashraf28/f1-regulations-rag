@@ -54,12 +54,27 @@ DOCUMENTS = [
 RAW_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 
 
+def fetch(url: str, timeout: int = 60, attempts: int = 3) -> requests.Response:
+    """GET a URL, retrying transient failures with increasing delay."""
+    for attempt in range(attempts):
+        try:
+            response = requests.get(url, timeout=timeout, headers=HEADERS)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as exc:
+            print(
+                f"  attempt {attempt + 1}/{attempts} failed ({exc.__class__.__name__}), retrying..."
+            )
+            time.sleep(2 * (attempt + 1))  # wait 2s, then 4s, then 6s
+    raise RuntimeError(f"Failed to fetch {url} after {attempts} attempts")
+
+
 def download(label: str, url: str) -> str:
     """Download one PDF to data/raw/ if not already there. Returns a status string."""
     out_path = RAW_DIR / f"{label}.pdf"
     if out_path.exists() and out_path.stat().st_size > 0:
         return f"skip    {label} (already downloaded)"
-    response = requests.get(url, timeout=30)
+    response = fetch(url)
     response.raise_for_status()  # turns "404 Not Found" into an error we can see
     out_path.write_bytes(response.content)
     return f"fetched {label} ({len(response.content):,} bytes)"
@@ -67,7 +82,7 @@ def download(label: str, url: str) -> str:
 
 def find_decision_links(page_url: str) -> list[str]:
     """Return relative PDF paths found on a FIA documents page."""
-    response = requests.get(page_url, timeout=30, headers=HEADERS)
+    response = fetch(page_url)
     response.raise_for_status()
     links = re.findall(r'href="(/system/files/decision-document/[^"]+\.pdf)"', response.text)
     return list(dict.fromkeys(links))  # dedupe, keep order
@@ -75,7 +90,7 @@ def find_decision_links(page_url: str) -> list[str]:
 
 def find_event_urls(season_url: str) -> list[str]:
     """Find every event URL listed on a season's documents page."""
-    response = requests.get(season_url, timeout=30, headers=HEADERS)
+    response = fetch(season_url)
     response.raise_for_status()
     relative = re.findall(r'<option value="([^"]*/event/[^"]+)">', response.text)
     return [BASE_URL + path for path in dict.fromkeys(relative)]
@@ -95,7 +110,7 @@ def download_decisions(season_url: str, pause: float = 0.3) -> None:
             if out_path.exists() and out_path.stat().st_size > 0:
                 print(f"skip    {name}")
                 continue
-            response = requests.get(url, timeout=30, headers=HEADERS)
+            response = fetch(url)
             response.raise_for_status()
             out_path.write_bytes(response.content)
             print(f"fetched {name} ({len(response.content):,} bytes)")
