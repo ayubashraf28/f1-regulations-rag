@@ -7,6 +7,7 @@ Select the active one via config: EMBEDDING_PROVIDER=openai|local.
 from abc import ABC, abstractmethod
 from hashlib import sha256
 from pathlib import Path
+
 from diskcache import Cache
 
 from f1_regulations_rag.config import CACHE_ROOT, settings
@@ -93,8 +94,6 @@ class CachedEmbeddingProvider(BaseEmbeddingProvider):
                 results[index] = vector
         assert all(v is not None for v in results)
         return [v for v in results if v is not None]
-
-
 
 
 def get_embedding_provider(provider: str | None = None) -> BaseEmbeddingProvider:
