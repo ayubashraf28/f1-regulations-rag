@@ -1,0 +1,51 @@
+[project]
+name = "f1-regulations-rag"
+version = "0.1.0"
+description = "RAG system over FIA F1 Regulations with evaluation harness"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.34",
+    "langchain>=0.3",
+    "langchain-openai>=0.3",
+    "psycopg[binary]>=3.2",
+    "pgvector>=0.3",
+    "pypdf>=5.3",
+    "pdfplumber>=0.11",
+    "rank-bm25>=0.2",
+    "ragas>=0.2",
+    "sentence-transformers>=3.4",
+    "pydantic>=2.10",
+    "pydantic-settings>=2.7",
+    "loguru>=0.7",
+    "tiktoken>=0.8",
+    "langfuse>=2.60",
+    "slowapi>=0.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.9",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+docstring-code-format = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=src/f1_regulations_rag --cov-report=term-missing -v"
+
+[tool.uv]
+package = true

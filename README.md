@@ -1,1 +1,3 @@
 # f1-regulations-rag
+
+A retrieval-augmented Q&A system over the FIA Formula 1 Sporting, Technical, and Financial Regulations, plus a corpus of stewards' decisions. Built with hybrid retrieval (dense + BM25 + reranking), three benchmarked chunking strategies, pluggable OpenAI / open-source (BGE) embeddings, and a reproducible RAGAS evaluation harness. In progress — built in public as a learning project.
